@@ -52,8 +52,9 @@ void vga_bootsplash() {
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
 #endif
-void kernel_main()
-{
+extern void gdt_install();
+void kernel_main() {
+	gdt_install();
 	vga_bootsplash();
 	// TODO do stuff
 	// TODO reset vga after boot
