@@ -1,0 +1,4 @@
+*.o
+isodir
+lambdaos.bin
+lambdaos.iso
