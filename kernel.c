@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #include "driver/vga.h"
-#include "lib/string.h"
+#include "lib/str.h"
  
 /* Check if the compiler thinks if we are targeting the wrong operating system. */
 #if defined(__linux__)

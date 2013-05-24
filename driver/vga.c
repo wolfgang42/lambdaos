@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "vga.h"
-#include "../lib/string.h"
+#include "../lib/str.h"
 
 size_t vga_row;
 size_t vga_column;
