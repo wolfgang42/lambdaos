@@ -34,6 +34,9 @@ driver/vga.o: driver/vga.c
 gdt.o: gdt.c
 	../cross/bin/i586-elf-gcc -c gdt.c -o gdt.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
+idt.o: idt.c
+	../cross/bin/i586-elf-gcc -c idt.c -o idt.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+
 clean:
 	rm -f *.o lambdaos.bin lambdaos.iso lib/*.o driver/*.o
 	rm -rf isodir

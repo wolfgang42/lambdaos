@@ -66,9 +66,11 @@ void vga_bootsplash() {
 extern "C" /* Use C linkage for kernel_main. */
 #endif
 extern void gdt_install();
+extern void idt_install();
 void kernel_main() {
-	gdt_install();
 	vga_bootsplash();
+	gdt_install();
+	idt_install();
 	// TODO do stuff
 	// TODO vga_reset(); // (after boot)
 	vga_writestring("\nWill now halt.");
