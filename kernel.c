@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "driver/vga.h"
+#include "lib/string.h"
  
 /* Check if the compiler thinks if we are targeting the wrong operating system. */
 #if defined(__linux__)
@@ -18,6 +19,22 @@ static const char* logotxt[LOGOTXT_V]={
 	"_|    _|     _|_|  ",
 	"_|    _|         _|",
 	"  _|_|     _|_|_|  "};
+
+void vga_bootsplash_statusmsg(char* message, int8_t percent) {
+	size_t index=0;
+	size_t length=strlen(message);
+	uint8_t color = vga_make_color(COLOR_BLUE,COLOR_LIGHT_GREEN);
+	size_t max=VGA_WIDTH*percent/100;
+	for (size_t c = 0; c <= 1; c++) { // Do this next bit twice (once for each half of progress bar)
+		for (index=index; index <= max; index++)
+			if (index < length)
+				vga_putentryat(message[index],color,index,VGA_HEIGHT);
+			else
+				vga_putentryat(' ',           color,index,VGA_HEIGHT);
+		color = vga_make_color(COLOR_BLUE,COLOR_GREEN);
+		max=VGA_WIDTH;
+	}
+}
 
 void vga_bootsplash() {
 	// TODO be more mathematically precise?
@@ -42,11 +59,7 @@ void vga_bootsplash() {
 		vga_writestring(logotxt[i]);
 		vga_writestring("\n");
 	}
-	vga_setcolor(vga_make_color(COLOR_BLUE,COLOR_LIGHT_GREEN));
-	vga_row=VGA_HEIGHT;
-	for (size_t i=0; i <= VGA_WIDTH; i++) // Clear bottom bar
-		vga_putentryat(' ',vga_color,i,VGA_HEIGHT);
-	vga_writestring("Welcome to LambdaOS.\r");
+	vga_bootsplash_statusmsg("Welcome to LambdaOS.",0);
 }
  
 #if defined(__cplusplus)
@@ -57,6 +70,6 @@ void kernel_main() {
 	gdt_install();
 	vga_bootsplash();
 	// TODO do stuff
-	// TODO reset vga after boot
-	//vga_writestring("\nWill now halt.");
+	// TODO vga_reset(); // (after boot)
+	vga_writestring("\nWill now halt.");
 }
