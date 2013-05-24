@@ -11,7 +11,7 @@ struct idt_entry {
 
 struct idt_ptr {
     unsigned short limit;
-    unsigned int base;
+    void *base; // Was unsigned int, but C complained
 } __attribute__((packed));
 
 /* Declare an IDT of 256 entries. Although we will only use the

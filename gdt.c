@@ -18,7 +18,7 @@ struct gdt_entry
 struct gdt_ptr
 {
     unsigned short limit;
-    unsigned int base;
+    void *base; // Was unsigned int, but C complained
 } __attribute__((packed));
 
 /* Our GDT, with 3 entries, and finally our special GDT pointer */
