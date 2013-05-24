@@ -12,12 +12,18 @@ lambdaos.iso: lambdaos.bin grub.cfg
 	cp grub.cfg isodir/boot/grub/grub.cfg
 	grub-mkrescue -o lambdaos.iso isodir
 
-lambdaos.bin: boot.o kernel.o gdt.o idt.o driver/vga.o lib/str.o lib/mem.o linker.ld
+lambdaos.bin: boot.s.o kernel.o gdt.o gdt.s.o idt.o idt.s.o driver/vga.o lib/str.o lib/mem.o linker.ld
 	../cross/bin/i586-elf-gcc -T linker.ld -o lambdaos.bin -ffreestanding -O2 -nostdlib \
-		boot.o kernel.o gdt.o idt.o driver/vga.o lib/str.o lib/mem.o  -lgcc
+		boot.s.o kernel.o gdt.o gdt.s.o idt.o idt.s.o driver/vga.o lib/str.o lib/mem.o  -lgcc
 
-boot.o: boot.s
-	../cross/bin/i586-elf-as boot.s -o boot.o
+boot.s.o: boot.s
+	../cross/bin/i586-elf-as boot.s -o boot.s.o
+
+gdt.s.o: gdt.s
+	../cross/bin/i586-elf-as gdt.s -o gdt.s.o
+
+idt.s.o: idt.s
+	../cross/bin/i586-elf-as idt.s -o idt.s.o
 
 kernel.o: kernel.c
 	../cross/bin/i586-elf-gcc -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
