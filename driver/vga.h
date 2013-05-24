@@ -27,8 +27,8 @@ extern size_t vga_column;
 extern uint8_t vga_color;
 extern uint16_t* vga_buffer;
 
-extern uint8_t make_color(enum vga_color fg, enum vga_color bg);
-extern uint16_t make_vgaentry(char c, uint8_t color);
+extern uint8_t vga_make_color(enum vga_color fg, enum vga_color bg);
+extern uint16_t vga_make_entry(char c, uint8_t color);
 extern void vga_putentryat(char c, uint8_t color, size_t x, size_t y);
 extern void vga_clear();
 extern void vga_reset();

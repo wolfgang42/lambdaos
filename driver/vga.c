@@ -11,11 +11,11 @@ size_t vga_column;
 uint8_t vga_color;
 uint16_t* vga_buffer;
 
-uint8_t make_color(enum vga_color fg, enum vga_color bg) {
+uint8_t vga_make_color(enum vga_color fg, enum vga_color bg) {
 	return fg | bg << 4;
 }
 
-uint16_t make_vgaentry(char c, uint8_t color) {
+uint16_t vga_make_entry(char c, uint8_t color) {
 	uint16_t c16 = c;
 	uint16_t color16 = color;
 	return c16 | color16 << 8;
@@ -23,7 +23,7 @@ uint16_t make_vgaentry(char c, uint8_t color) {
 
 void vga_putentryat(char c, uint8_t color, size_t x, size_t y) {
 	const size_t index = y * VGA_WIDTH + x;
-	vga_buffer[index] = make_vgaentry(c, color);
+	vga_buffer[index] = vga_make_entry(c, color);
 }
 
 void vga_clear() {
@@ -36,7 +36,7 @@ void vga_clear() {
 
 void vga_reset() {
 	vga_buffer = (uint16_t*) 0xB8000;
-	vga_color = make_color(COLOR_LIGHT_GREY, COLOR_BLACK);
+	vga_color = vga_make_color(COLOR_LIGHT_GREY, COLOR_BLACK);
 	vga_clear();
 }
  
