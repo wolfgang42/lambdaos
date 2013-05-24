@@ -29,5 +29,5 @@ gdt.o: gdt.c
 	../cross/bin/i586-elf-gcc -c gdt.c -o gdt.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 clean:
-	rm boot.o kernel.o lambdaos.bin lambdaos.iso
+	rm -f boot.o kernel.o lambdaos.bin lambdaos.iso
 	rm -rf isodir
