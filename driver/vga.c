@@ -29,8 +29,8 @@ void vga_putentryat(char c, uint8_t color, size_t x, size_t y) {
 void vga_clear() {
 	vga_row = 0;
 	vga_column = 0;
-	for ( size_t y = 0; y < VGA_HEIGHT; y++ ) // Clear screen
-		for ( size_t x = 0; x < VGA_WIDTH; x++ )
+	for ( size_t y = 0; y <= VGA_HEIGHT; y++ ) // Clear screen
+		for ( size_t x = 0; x <= VGA_WIDTH; x++ )
 			vga_putentryat(' ',vga_color,x,y);
 }
 
@@ -47,7 +47,7 @@ void vga_setcolor(uint8_t color) {
  
 void vga_putchar(char c) {
 	if (c == '\n') {
-		if ( ++vga_row == VGA_HEIGHT ) {
+		if ( ++vga_row >= VGA_HEIGHT ) {
 			vga_row = 0;
 		}
 		vga_column=0;
@@ -55,9 +55,9 @@ void vga_putchar(char c) {
 		vga_column=0;
 	} else {
 		vga_putentryat(c, vga_color, vga_column, vga_row);
-		if ( ++vga_column == VGA_WIDTH ) {
+		if ( ++vga_column >= VGA_WIDTH ) {
 			vga_column = 0;
-			if ( ++vga_row == VGA_HEIGHT ) {
+			if ( ++vga_row >= VGA_HEIGHT ) {
 				vga_row = 0;
 			}
 		}
