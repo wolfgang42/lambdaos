@@ -2,3 +2,6 @@
 isodir
 lambdaos.bin
 lambdaos.iso
+isr.s
+isr.c
+*.pyc

@@ -33,7 +33,7 @@ extern void idt_load();
  *  fields that you must set in idt[num] are fairly self-
  *  explanatory when it comes to setup */
 void idt_set_gate(unsigned char num, unsigned long base, unsigned short sel, unsigned char flags) {
-	idt[num].base_hi = (base & 0xFFFF);
+	idt[num].base_lo = (base & 0xFFFF);
 	idt[num].base_hi = (base >> 16) & 0xFFFF;
 	idt[num].sel     = sel;
 	idt[num].flags   = flags;

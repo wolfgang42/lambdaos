@@ -65,6 +65,8 @@ _start:
 	# to disable interrupts, the halt instruction ('hlt') to stop the CPU until
 	# the next interrupt arrives, and jumping to the halt instruction if it ever
 	# continues execution, just to be safe.
+.global system_fullhalt
+system_fullhalt:
 	cli
 hang:
 	hlt

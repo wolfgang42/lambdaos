@@ -67,10 +67,12 @@ extern "C" /* Use C linkage for kernel_main. */
 #endif
 extern void gdt_install();
 extern void idt_install();
+extern void isrs_install();
 void kernel_main() {
 	vga_bootsplash();
 	gdt_install();
 	idt_install();
+	isrs_install();
 	// TODO do stuff
 	// TODO vga_reset(); // (after boot)
 	vga_writestring("\nWill now halt.");
