@@ -1,11 +1,12 @@
-GCC=../cross/bin/i586-elf-gcc -g
-GAS=../cross/bin/i586-elf-as  -g
+GCC=../cross/bin/i586-elf-gcc -ggdb3
+GAS=../cross/bin/i586-elf-as  -ggdb3
+QEMU_OPTS=#-s -S
 
 binboot: lambdaos.bin
-	qemu-system-i386 -kernel lambdaos.bin
+	qemu-system-i386 -kernel lambdaos.bin $(QEMU_OPTS)
 
 isoboot: lambdaos.iso
-	qemu-system-i386 -cdrom lambdaos.iso
+	qemu-system-i386 -cdrom lambdaos.iso $(QEMU_OPTS)
 
 lambdaos.iso: lambdaos.bin grub.cfg
 	mkdir -p isodir
