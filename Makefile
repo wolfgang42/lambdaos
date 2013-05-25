@@ -16,7 +16,7 @@ lambdaos.iso: lambdaos.bin grub.cfg
 	cp grub.cfg isodir/boot/grub/grub.cfg
 	grub-mkrescue -o lambdaos.iso isodir
 
-OBJECTS=boot.s.o kernel.o gdt.o gdt.s.o idt.o idt.s.o isr.o isr.s.o driver/vga.o lib/str.o lib/mem.o
+OBJECTS=boot.s.o kernel.o gdt.o gdt.s.o idt.o idt.s.o isr.o isr.s.o driver/vga.o lib/str.o lib/mem.o lib/printf.o
 lambdaos.bin: $(OBJECTS) linker.ld
 	$(GCC) -T linker.ld -o lambdaos.bin -ffreestanding -O2 -nostdlib \
 		$(OBJECTS) -lgcc
@@ -42,7 +42,7 @@ isr.c:isr.c_generator.py isr_exceptions.py driver/vga.h kernel.h
 isr.o: isr.c driver/vga.h
 	$(GCC) -c isr.c -o isr.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
-kernel.o: kernel.c driver/vga.h lib/str.h
+kernel.o: kernel.c driver/vga.h lib/str.h lib/printf.h
 	$(GCC) -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 lib/str.o: lib/str.c
@@ -50,6 +50,9 @@ lib/str.o: lib/str.c
 
 lib/mem.o: lib/mem.c
 	$(GCC) -c lib/mem.c -o lib/mem.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+
+lib/printf.o: lib/printf.c
+	$(GCC) -c lib/printf.c -o lib/printf.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 driver/vga.o: driver/vga.c driver/vga.h lib/str.h kernel.h
 	$(GCC) -c driver/vga.c -o driver/vga.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra

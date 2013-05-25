@@ -6,6 +6,8 @@
 
 #include "driver/vga.h"
 #include "lib/str.h"
+#include "lib/printf.h"
+#include "kernel.h"
  
 /* Check if the compiler thinks if we are targeting the wrong operating system. */
 #if defined(__linux__)
@@ -62,26 +64,30 @@ void vga_bootsplash() {
 	vga_bootsplash_statusmsg("Welcome to LambdaOS.",0);
 }
 
-extern void system_fullhalt();
-void kernel_panic(char *message) {
+extern void system_fullhalt() __attribute__ ((noreturn));
+void do_kernel_panic(const char *message, const char* file, const char* function, unsigned const int line) {
 	vga_set_cursor_display(false,0,0);
 	vga_setcolor(vga_make_color(COLOR_BLACK,COLOR_GREEN));
 	vga_clear();
 	vga_draw_dialog(0,0,VGA_WIDTH,VGA_HEIGHT,vga_make_color(COLOR_RED,COLOR_GREEN),"Kernel Panic\x13");
 	vga_row=2;vga_column=2;vga_setcolor(vga_make_color(COLOR_WHITE,COLOR_GREEN));
 	vga_writestring("Something has gone horribly wrong inside LambdaOS.");
-	vga_row=5;vga_column=2;
+	vga_row=6;vga_column=2;
 	vga_putchar(4);
 	vga_writestring(" Please report this problem, along with steps to reproduce it (if possible),");
-	vga_row=6;vga_column=4;
+	vga_row=7;vga_column=4;
 	vga_writestring("to: ");
 	vga_setcolor(vga_make_color(COLOR_BLUE,COLOR_GREEN));vga_writestring("http://github.com/wolfgang42/lambdaos/issues/");
-	vga_row=8;vga_column=2;vga_setcolor(vga_make_color(COLOR_WHITE,COLOR_GREEN));
+	vga_row=9;vga_column=2;vga_setcolor(vga_make_color(COLOR_WHITE,COLOR_GREEN));
 	vga_putchar(4);
 	vga_writestring(" You must restart your computer manually.");
 	vga_row=3;vga_column=5;
-	vga_setcolor(vga_make_color(COLOR_LIGHT_GREY,COLOR_GREEN));vga_writestring("Error: ");
+	vga_setcolor(vga_make_color(COLOR_LIGHT_GREY,COLOR_GREEN));vga_writestring("Error:    ");
 	vga_setcolor(vga_make_color(COLOR_BLACK,COLOR_GREEN));vga_writestring(message);
+	vga_row=4;vga_column=5;
+	vga_setcolor(vga_make_color(COLOR_LIGHT_GREY,COLOR_GREEN));vga_writestring("Location: ");
+	vga_setcolor(vga_make_color(COLOR_BLACK,COLOR_GREEN));
+	printf("%s:%u (in function %s)", file, line, function);
 	system_fullhalt();
 }
 
