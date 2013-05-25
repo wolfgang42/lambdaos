@@ -38,6 +38,7 @@ void vga_bootsplash_statusmsg(char* message, int8_t percent) {
 
 void vga_bootsplash() {
 	// TODO be more mathematically precise?
+	vga_set_cursor_display(false,0,0);
 	vga_setcolor(vga_make_color(COLOR_BLACK,COLOR_LIGHT_BLUE));
 	vga_clear();
 	#define LAMBDA_CENTERING_CONSTANT 36
@@ -63,6 +64,7 @@ void vga_bootsplash() {
 
 extern void system_fullhalt();
 void kernel_panic(char *message) {
+	vga_set_cursor_display(false,0,0);
 	vga_setcolor(vga_make_color(COLOR_BLACK,COLOR_GREEN));
 	vga_clear();
 	vga_draw_dialog(0,0,VGA_WIDTH,VGA_HEIGHT,vga_make_color(COLOR_RED,COLOR_GREEN),"Kernel Panic\x13");
@@ -87,12 +89,30 @@ void kernel_shutdown() {
 	char* message=" It is now safe to switch off your computer. ";
 	size_t x=(VGA_WIDTH/2)-(strlen(message)/2);
 	size_t y=(VGA_HEIGHT/2)-1;
+	vga_set_cursor_display(false,0,0);
 	vga_setcolor(vga_make_color(COLOR_WHITE,COLOR_BLACK));
 	vga_clear();
 	vga_draw_dialog(x,y,strlen(message)+2,4,vga_color,"System halted.");
 	vga_row=y+2;vga_column=x+1;
 	vga_writestring(message);
 	system_fullhalt();
+}
+
+/* We will use this later on for reading from the I/O ports to get data
+*  from devices such as the keyboard. We are using what is called
+*  'inline assembly' in these routines to actually do the work */
+unsigned char inportb (unsigned short _port) {
+	unsigned char rv;
+	__asm__ __volatile__ ("inb %1, %0" : "=a" (rv) : "dN" (_port));
+	return rv;
+}
+
+/* We will use this to write to I/O ports to send bytes to devices. This
+*  will be used in the next tutorial for changing the textmode cursor
+*  position. Again, we use some inline assembly for the stuff that simply
+*  cannot be done in C */
+void outportb (unsigned short _port, unsigned char _data) {
+	__asm__ __volatile__ ("outb %1, %0" : : "dN" (_port), "a" (_data));
 }
 
 #if defined(__cplusplus)

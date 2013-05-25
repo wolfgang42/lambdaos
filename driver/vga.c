@@ -5,11 +5,49 @@
 #include <stdint.h>
 #include "vga.h"
 #include "../lib/str.h"
+#include "../kernel.h"
 
 size_t vga_row;
 size_t vga_column;
 uint8_t vga_color;
 uint16_t* vga_buffer;
+
+/* Updates the hardware cursor: the little blinking line
+*  on the screen under the last character pressed! */
+void vga_set_cursor_pos(int csr_x, int csr_y) {
+    unsigned temp;
+
+    /* The equation for finding the index in a linear
+    *  chunk of memory can be represented by:
+    *  Index = [(y * width) + x] */
+    temp = csr_y * 80 + csr_x;
+
+    /* This sends a command to indicies 14 and 15 in the
+    *  CRT Control Register of the VGA controller. These
+    *  are the high and low bytes of the index that show
+    *  where the hardware cursor is to be 'blinking'. To
+    *  learn more, you should look up some VGA specific
+    *  programming documents. A great start to graphics:
+    *  http://www.brackeen.com/home/vga */
+    outportb(0x3D4, 0x0E);
+    outportb(0x3D5, temp >> 8);
+    outportb(0x3D4, 0x0F);
+    outportb(0x3D5, temp);
+}
+
+void vga_set_cursor_display(bool enabled, uint8_t start, uint8_t end) {
+	if (!enabled) {
+		// Some hardware disregards the Cursor Disable bit, but doesn't show
+		// the cursor if start > end.
+		start = 0xf1;
+		end   = 0x00;
+	}
+	// http://www.osdever.net/FreeVGA/vga/crtcreg.htm#0A
+	outportb(0x3D4, 0x0A);
+	outportb(0x3D5, (start & 0x1F) | (enabled << 6));
+	outportb(0x3D4, 0x0B);
+	outportb(0x3D5, (end & 0x1F));
+}
 
 uint8_t vga_make_color(enum vga_color fg, enum vga_color bg) {
 	return fg | bg << 4;
@@ -47,6 +85,8 @@ void vga_clear() {
 
 void vga_reset() {
 	vga_buffer = (uint16_t*) 0xB8000;
+	vga_set_cursor_pos(0,0);
+	vga_set_cursor_display(true,0x0E,0x1F);
 	vga_color = vga_make_color(COLOR_LIGHT_GREY, COLOR_BLACK);
 	vga_clear();
 }

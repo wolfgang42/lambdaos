@@ -51,7 +51,7 @@ lib/str.o: lib/str.c
 lib/mem.o: lib/mem.c
 	$(GCC) -c lib/mem.c -o lib/mem.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
-driver/vga.o: driver/vga.c driver/vga.h lib/str.h
+driver/vga.o: driver/vga.c driver/vga.h lib/str.h kernel.h
 	$(GCC) -c driver/vga.c -o driver/vga.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 gdt.o: gdt.c

@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h> /* C doesn't have booleans by default. */
 /* Hardware text mode color constants. */
 enum vga_color
 {
@@ -29,6 +30,8 @@ extern size_t vga_column;
 extern uint8_t vga_color;
 extern uint16_t* vga_buffer;
 
+extern void vga_set_cursor_pos(int csr_x, int csr_y);
+extern void vga_set_cursor_display(bool enabled, uint8_t start, uint8_t end);
 extern uint8_t vga_make_color(enum vga_color fg, enum vga_color bg);
 extern uint16_t vga_make_entry(char c, uint8_t color);
 extern void vga_putentryat(char c, uint8_t color, size_t x, size_t y);
