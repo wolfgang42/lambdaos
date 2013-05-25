@@ -38,7 +38,6 @@ void vga_bootsplash_statusmsg(char* message, int8_t percent) {
 
 void vga_bootsplash() {
 	// TODO be more mathematically precise?
-	vga_reset();
 	vga_setcolor(vga_make_color(COLOR_BLACK,COLOR_LIGHT_BLUE));
 	vga_clear();
 	#define LAMBDA_CENTERING_CONSTANT 36
@@ -61,7 +60,41 @@ void vga_bootsplash() {
 	}
 	vga_bootsplash_statusmsg("Welcome to LambdaOS.",0);
 }
- 
+
+extern void system_fullhalt();
+void kernel_panic(char *message) {
+	vga_setcolor(vga_make_color(COLOR_BLACK,COLOR_GREEN));
+	vga_clear();
+	vga_draw_dialog(0,0,VGA_WIDTH,VGA_HEIGHT,vga_make_color(COLOR_RED,COLOR_GREEN),"Kernel Panic\x13");
+	vga_row=2;vga_column=2;vga_setcolor(vga_make_color(COLOR_WHITE,COLOR_GREEN));
+	vga_writestring("Something has gone horribly wrong inside LambdaOS.");
+	vga_row=5;vga_column=2;
+	vga_putchar(4);
+	vga_writestring(" Please report this problem, along with steps to reproduce it (if possible),");
+	vga_row=6;vga_column=4;
+	vga_writestring("to: ");
+	vga_setcolor(vga_make_color(COLOR_BLUE,COLOR_GREEN));vga_writestring("http://github.com/wolfgang42/lambdaos/issues/");
+	vga_row=8;vga_column=2;vga_setcolor(vga_make_color(COLOR_WHITE,COLOR_GREEN));
+	vga_putchar(4);
+	vga_writestring(" You must restart your computer manually.");
+	vga_row=3;vga_column=5;
+	vga_setcolor(vga_make_color(COLOR_LIGHT_GREY,COLOR_GREEN));vga_writestring("Error: ");
+	vga_setcolor(vga_make_color(COLOR_BLACK,COLOR_GREEN));vga_writestring(message);
+	system_fullhalt();
+}
+
+void kernel_shutdown() {
+	char* message=" It is now safe to switch off your computer. ";
+	size_t x=(VGA_WIDTH/2)-(strlen(message)/2);
+	size_t y=(VGA_HEIGHT/2)-1;
+	vga_setcolor(vga_make_color(COLOR_WHITE,COLOR_BLACK));
+	vga_clear();
+	vga_draw_dialog(x,y,strlen(message)+2,4,vga_color,"System halted.");
+	vga_row=y+2;vga_column=x+1;
+	vga_writestring(message);
+	system_fullhalt();
+}
+
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
 #endif
@@ -69,11 +102,12 @@ extern void gdt_install();
 extern void idt_install();
 extern void isrs_install();
 void kernel_main() {
+	vga_reset();
 	vga_bootsplash();
 	gdt_install();
 	idt_install();
 	isrs_install();
 	// TODO do stuff
 	// TODO vga_reset(); // (after boot)
-	vga_writestring("\nWill now halt.");
+	kernel_shutdown();
 }

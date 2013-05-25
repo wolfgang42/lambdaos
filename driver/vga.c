@@ -21,9 +21,20 @@ uint16_t vga_make_entry(char c, uint8_t color) {
 	return c16 | color16 << 8;
 }
 
+uint16_t vga_make_unsigned_entry(unsigned char c, uint8_t color) {
+	uint16_t c16 = c;
+	uint16_t color16 = color;
+	return c16 | color16 << 8;
+}
+
 void vga_putentryat(char c, uint8_t color, size_t x, size_t y) {
 	const size_t index = y * VGA_WIDTH + x;
 	vga_buffer[index] = vga_make_entry(c, color);
+}
+
+void vga_putunsignedentryat(unsigned char c, uint8_t color, size_t x, size_t y) {
+	const size_t index = y * VGA_WIDTH + x;
+	vga_buffer[index] = vga_make_unsigned_entry(c, color);
 }
 
 void vga_clear() {
@@ -71,3 +82,30 @@ void vga_writestring(const char* data) {
 	for ( size_t i = 0; i < datalen; i++ ) 
 		vga_putchar(data[i]);
 }
+
+void vga_draw_dialog(size_t x, size_t y, size_t width, size_t height, uint8_t color, char * title) {
+	for (size_t px=x; px < x+width; px++) { // Draw vertical line
+		vga_putunsignedentryat(205,color,px,y); // Char 205 is vertical double bar
+		vga_putunsignedentryat(205,color,px,y+height);
+	}
+	for (size_t py=y; py < y+height; py++) { // Draw horizontal line
+		vga_putunsignedentryat(186,color,x,py); // Char 186 is vertical double bar
+		vga_putunsignedentryat(186,color,x+width-1,py);
+	}
+	vga_putunsignedentryat(187,color,x+width-1,y); // Top right
+	vga_putunsignedentryat(188,color,x+width-1,y+height); // Bottom right
+	vga_putunsignedentryat(200,color,x,y+height); // Bottom left
+	vga_putunsignedentryat(201,color,x,y); // Top left
+	// Title
+	size_t title_length=strlen(title);
+	if (title_length > 0) {
+		size_t title_start=x+(width/2)-(title_length/2);
+		vga_column=title_start-1;vga_row=y;
+		vga_putunsignedentryat(181,color,title_start-2,y);
+		vga_putchar(' ');
+		vga_writestring(title);
+		vga_putchar(' ');
+		vga_putunsignedentryat(198,color,title_start+title_length+1,y);
+	}
+}
+

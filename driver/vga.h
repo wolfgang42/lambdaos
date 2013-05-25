@@ -37,3 +37,4 @@ extern void vga_reset();
 extern void vga_setcolor(uint8_t color);
 extern void vga_putchar(char c);
 extern void vga_writestring(const char* data);
+extern void vga_draw_dialog(size_t x, size_t y, size_t width, size_t height, uint8_t color, char* title);

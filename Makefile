@@ -36,7 +36,7 @@ isr.s.o: isr.s
 isr.s: isr.s_generator.py isr_exceptions.py
 	python isr.s_generator.py > isr.s
 
-isr.c:isr.c_generator.py isr_exceptions.py driver/vga.h
+isr.c:isr.c_generator.py isr_exceptions.py driver/vga.h kernel.h
 	python isr.c_generator.py > isr.c
 
 isr.o: isr.c driver/vga.h
