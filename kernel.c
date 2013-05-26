@@ -127,12 +127,20 @@ extern "C" /* Use C linkage for kernel_main. */
 extern void gdt_install();
 extern void idt_install();
 extern void isrs_install();
+extern void irq_install();
+extern void timer_install();
 void kernel_main() {
 	vga_reset();
 	vga_bootsplash();
 	gdt_install();
 	idt_install();
 	isrs_install();
+	irq_install();
+	timer_install();
+	__asm__ __volatile__ ("sti"); // Enable IRQs
+	while (1) {
+		__asm__ __volatile__ ("hlt"); // Idle until interrupt arrives
+	}
 	// TODO do stuff
 	// TODO vga_reset(); // (after boot)
 	kernel_shutdown();
