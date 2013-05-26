@@ -16,7 +16,7 @@ lambdaos.iso: lambdaos.bin grub.cfg
 	cp grub.cfg isodir/boot/grub/grub.cfg
 	grub-mkrescue -o lambdaos.iso isodir
 
-OBJECTS=boot.s.o kernel.o gdt.o gdt.s.o idt.o idt.s.o isr.o isr.s.o irq.o irq.s.o driver/vga.o driver/timer.o lib/str.o lib/mem.o lib/printf.o
+OBJECTS=boot.s.o kernel.o gdt.o gdt.s.o idt.o idt.s.o isr.o isr.s.o irq.o irq.s.o driver/vga.o driver/timer.o driver/keyboard.o lib/str.o lib/mem.o lib/printf.o
 lambdaos.bin: $(OBJECTS) linker.ld
 	$(GCC) -T linker.ld -o lambdaos.bin -ffreestanding -O2 -nostdlib \
 		$(OBJECTS) -lgcc
@@ -68,6 +68,9 @@ driver/vga.o: driver/vga.c driver/vga.h lib/str.h kernel.h
 
 driver/timer.o: driver/timer.c irq.h kernel.h
 	$(GCC) -c driver/timer.c -o driver/timer.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+
+driver/keyboard.o: driver/keyboard.c irq.h kernel.h
+	$(GCC) -c driver/keyboard.c -o driver/keyboard.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 gdt.o: gdt.c
 	$(GCC) -c gdt.c -o gdt.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra

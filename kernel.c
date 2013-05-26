@@ -129,6 +129,7 @@ extern void idt_install();
 extern void isrs_install();
 extern void irq_install();
 extern void timer_install();
+extern void keyboard_install();
 void kernel_main() {
 	vga_reset();
 	vga_bootsplash();
@@ -137,6 +138,7 @@ void kernel_main() {
 	isrs_install();
 	irq_install();
 	timer_install();
+	keyboard_install();
 	__asm__ __volatile__ ("sti"); // Enable IRQs
 	while (1) {
 		__asm__ __volatile__ ("hlt"); // Idle until interrupt arrives
