@@ -5,6 +5,13 @@
 volatile unsigned long long timer_ticks = 0;
 const int timer_phase = 100;
 
+typedef struct {
+	void (*handler)();
+	unsigned long long time;
+} timer_schedule_item;
+#define TIMER_SCHEDULE_MAXITEMS 10
+volatile timer_schedule_item timer_schedule_list[TIMER_SCHEDULE_MAXITEMS];
+
 void timer_set_phase(int hz) {
 	int divisor = 1193180 / hz;       /* Calculate our divisor */
 	outportb(0x43, 0x36);             /* Set our command byte 0x36 */
@@ -20,13 +27,36 @@ void timer_set_phase(int hz) {
 void timer_handler(struct regs *r __attribute__((__unused__))) {
 	/* Increment our 'tick count' */
 	timer_ticks++;
+	for (int i=0; i < TIMER_SCHEDULE_MAXITEMS; i++) {
+		if (timer_schedule_list[i].handler) {
+			if (timer_schedule_list[i].time == timer_ticks) {
+				timer_schedule_list[i].handler();
+				timer_schedule_list[i].handler=0;
+			}
+		}
+	}
 }
 
 /* Sets up the system clock by installing the timer handler
 *  into IRQ0 */
 void timer_install() {
+	for (int i=0; i < TIMER_SCHEDULE_MAXITEMS; i++) // Initialize scheduler
+		timer_schedule_list[i].handler = 0;
 	timer_set_phase(timer_phase); // 100 Hz
 	/* Installs 'timer_handler' to IRQ0 */
 	irq_install_handler(0, timer_handler);
+}
+
+unsigned long long timer_schedule(void(*handler)(), unsigned long long ticks) {
+	unsigned long long time=timer_ticks+ticks;
+	if (time == 0) time = 1;
+	for (int i=0; i < TIMER_SCHEDULE_MAXITEMS; i++) {
+		if (!timer_schedule_list[i].handler) { // This slot is free
+			timer_schedule_list[i].handler=handler;
+			timer_schedule_list[i].time=time;
+			return time;
+		}
+	}
+	kernel_panic("Timer out of scheduler slots.");
 }
 
