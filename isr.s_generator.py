@@ -8,8 +8,8 @@ for i in range(0,32):
 	print ".global isr"+str(i)
 	print "isr"+str(i)+":"
 	print "\tcli"
-	if not exceptions[i][1]: print "\tpushw $0 # Dummy error code to maintain consistent stack frame"
-	print "\tpushw $"+str(i)
+	if not exceptions[i][1]: print "\tpush $0 # Dummy error code to maintain consistent stack frame"
+	print "\tpush $"+str(i)
 	print "\tjmp isr_common_stub"
 	print
 
