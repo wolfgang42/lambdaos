@@ -17,4 +17,4 @@ Roadmap
 Sources
 -------
 * IDT, GTD, keyboard routines derived from [Brian's Kernel Development Tutorial](http://www.osdever.net/bkerndev/Docs/gettingstarted.htm)
-* Core & VGA routines from (Bare Bones)[http://wiki.osdev.org/Bare_Bones] on the OSDev Wiki
+* Core & VGA routines from [Bare Bones](http://wiki.osdev.org/Bare_Bones) on the OSDev Wiki
