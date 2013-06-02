@@ -5,3 +5,4 @@ lambdaos.iso
 isr.s
 isr.c
 *.pyc
+*.html
