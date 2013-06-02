@@ -2,7 +2,7 @@
 isodir
 lambdaos.bin
 lambdaos.iso
-isr.s
-isr.c
+isr.s isr.c
+irq.s
 *.pyc
 *.html
