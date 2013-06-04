@@ -1,6 +1,7 @@
-#if !defined(__cplusplus)
-#include <stdbool.h> /* C doesn't have booleans by default. */
+#ifdef __cplusplus
+extern "C" {
 #endif
+#include <stdbool.h> /* C doesn't have booleans by default. */
 #include <stddef.h>
 #include <stdint.h>
 
@@ -121,9 +122,6 @@ void outportb (unsigned short _port, unsigned char _data) {
 	__asm__ __volatile__ ("outb %1, %0" : : "dN" (_port), "a" (_data));
 }
 
-#if defined(__cplusplus)
-extern "C" /* Use C linkage for kernel_main. */
-#endif
 extern void gdt_install();
 extern void idt_install();
 extern void isrs_install();
@@ -145,3 +143,6 @@ void kernel_main() {
 	// TODO vga_reset(); // (after boot)
 	kernel_shutdown();
 }
+#ifdef __cplusplus
+}
+#endif
