@@ -1,72 +1,52 @@
 #include <stddef.h>
 #include "kernel.h"
 #include "lib/malloc.h"
+#include "lib/queue.h"
 #include "events.h"
 
-event* firstEvent = NULL;
-event* lastEvent = NULL;
+fifo_queue* event_queue;
+
+void events_install() {
+	fifo_queue_init(event_queue);
+}
 
 /* Add an event to the event queue
  * The caller is responsible for malloc()ing the event, and its data structures.
  */
 void event_enqueue(event* ev) {
-	if (lastEvent == NULL) {
-		// No events in queue, make this the only event
-		assert(firstEvent == NULL);
-		lastEvent = firstEvent = ev;
-	} else {
-		lastEvent->nextEvent = ev;
-		lastEvent = ev;
-	}
-	ev->nextEvent = NULL; // This is the last event in the list
+	fifo_queue_push(event_queue, ev);
 }
 
 /* Get the next event in the queue.
  * The caller is responsible for free()ing the event, and its data structures.
  */
 event* event_dequeue() {
-	if (firstEvent == NULL) {
-		// No events in queue
-		assert(lastEvent == NULL);
-		return NULL;
-	} else {
-		event* ev = firstEvent;
-		if (firstEvent->nextEvent == NULL) {
-			// This is the only event in the queue
-			assert(firstEvent == lastEvent);
-			firstEvent = lastEvent = NULL;
-		} else {
-			firstEvent = firstEvent->nextEvent;
-		}
-		return ev;
-	}
+	return fifo_queue_pop(event_queue);
 }
 
-event_handler* first_event_handler = NULL;
+event_handler* event_handlers[EVENT_MAX+1] = { [0 ... EVENT_MAX] = NULL};
 
 void event_attach(unsigned int code, bool (*fn)(event*)) {
 	event_handler* handler = malloc(sizeof(event_handler));
-	handler->code = code;
 	handler->fn = fn;
-	if (first_event_handler == NULL) {
+	if (event_handlers[code] == NULL) {
 		handler->next_handler = NULL;
 	} else {
-		handler->next_handler = first_event_handler;
+		handler->next_handler = event_handlers[code];
 	}
-	first_event_handler = handler;
+	event_handlers[code] = handler;
 }
 
 bool event_loop() {
 	event* active_event;
-	if (first_event_handler == NULL) return false; // No event handlers!
 	if ((active_event = event_dequeue()) != NULL) {
-		event_handler* handler = first_event_handler;
+		event_handler* handler = event_handlers[active_event->code];
 		bool run = true;
-		do {
+		while (handler != NULL && run) {
 			run = handler->fn(active_event);
 			handler = handler->next_handler;
-		} while (handler != NULL && run);
+		}
 		free(active_event);
 	}
-	return firstEvent != NULL;
+	return !fifo_queue_empty(event_queue);
 }

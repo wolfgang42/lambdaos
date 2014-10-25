@@ -141,6 +141,7 @@ void kernel_main() {
 	idt_install();
 	isrs_install();
 	irq_install();
+	events_install();
 	timer_install();
 	keyboard_install();
 	__asm__ __volatile__ ("sti"); // Enable IRQs

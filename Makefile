@@ -16,7 +16,7 @@ lambdaos.iso: lambdaos.bin grub.cfg
 	cp grub.cfg isodir/boot/grub/grub.cfg
 	grub-mkrescue -o lambdaos.iso isodir
 
-OBJECTS=boot.s.o kernel.o gdt.o gdt.s.o idt.o idt.s.o isr.o isr.s.o irq.o irq.s.o events.o driver/vga.o driver/timer.o driver/keyboard/ps2/ps2.o driver/keyboard/ps2/keymap.o lib/str.o lib/mem.o lib/malloc.o lib/printf.o
+OBJECTS=boot.s.o kernel.o gdt.o gdt.s.o idt.o idt.s.o isr.o isr.s.o irq.o irq.s.o events.o driver/vga.o driver/timer.o driver/keyboard/ps2/ps2.o driver/keyboard/ps2/keymap.o lib/str.o lib/mem.o lib/malloc.o lib/printf.o lib/queue.o
 lambdaos.bin: $(OBJECTS) linker.ld
 	$(GCC) -T linker.ld -o lambdaos.bin -ffreestanding -O2 -nostdlib \
 		$(OBJECTS) -lgcc
@@ -54,7 +54,7 @@ irq.o: irq.c isr.h idt.h
 kernel.o: kernel.c kernel.h driver/vga.h lib/str.h lib/printf.h events.h
 	$(GCC) -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
-events.o: events.c events.h lib/malloc.h kernel.h
+events.o: events.c events.h lib/malloc.h kernel.h lib/queue.h
 	$(GCC) -c events.c -o events.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 lib/str.o: lib/str.c
@@ -68,6 +68,9 @@ lib/malloc.o: lib/malloc.c lib/malloc.h lib/malloc_defs.c kernel.h lib/mem.h
 
 lib/printf.o: lib/printf.c
 	$(GCC) -c lib/printf.c -o lib/printf.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+
+lib/queue.o: lib/queue.c lib/queue.h lib/malloc.h kernel.h
+	$(GCC) -c lib/queue.c -o lib/queue.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 driver/vga.o: driver/vga.c driver/vga.h lib/str.h kernel.h
 	$(GCC) -c driver/vga.c -o driver/vga.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
