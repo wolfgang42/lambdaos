@@ -1,5 +1,5 @@
-GCC=../cross/bin/i586-elf-gcc -ggdb3
-GAS=../cross/bin/i586-elf-as  -ggdb3
+GCC=../crosscompile/install/bin/i686-elf-gcc -ggdb3
+GAS=../crosscompile/install/bin/i686-elf-as  -ggdb3
 QEMU_OPTS=#-s -S
 
 binboot: lambdaos.bin
