@@ -67,7 +67,7 @@ void vga_bootsplash() {
 }
 
 extern void system_fullhalt() __attribute__ ((noreturn));
-void do_kernel_panic(const char *message, const char* file, const char* function, unsigned const int line) {
+void do_kernel_panic(const char *message, bool assertion, const char* file, const char* function, unsigned const int line) {
 	vga_set_cursor_display(false,0,0);
 	vga_setcolor(vga_make_color(COLOR_BLACK,COLOR_GREEN));
 	vga_clear();
@@ -84,10 +84,15 @@ void do_kernel_panic(const char *message, const char* file, const char* function
 	vga_putchar(4);
 	vga_writestring(" You must restart your computer manually.");
 	vga_row=3;vga_column=5;
-	vga_setcolor(vga_make_color(COLOR_LIGHT_GREY,COLOR_GREEN));vga_writestring("Error:    ");
+	vga_setcolor(vga_make_color(COLOR_LIGHT_GREY,COLOR_GREEN));
+	if (assertion) {
+		vga_writestring("Assertion: ");
+	} else {
+		vga_writestring("Error:     ");
+	}
 	vga_setcolor(vga_make_color(COLOR_BLACK,COLOR_GREEN));vga_writestring(message);
 	vga_row=4;vga_column=5;
-	vga_setcolor(vga_make_color(COLOR_LIGHT_GREY,COLOR_GREEN));vga_writestring("Location: ");
+	vga_setcolor(vga_make_color(COLOR_LIGHT_GREY,COLOR_GREEN));vga_writestring("Location:  ");
 	vga_setcolor(vga_make_color(COLOR_BLACK,COLOR_GREEN));
 	printf("%s:%u (in function %s)", file, line, function);
 	system_fullhalt();
