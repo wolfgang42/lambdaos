@@ -69,13 +69,13 @@ driver/vga.o: driver/vga.c driver/vga.h lib/str.h kernel.h
 driver/timer.o: driver/timer.c irq.h kernel.h
 	$(GCC) -c driver/timer.c -o driver/timer.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
-driver/keyboard/ps2/keymap.c: driver/keyboard/ps2/keymap.c_generator.py driver/keyboard/ps2/keymap-set1
-	python driver/keyboard/ps2/keymap.c_generator.py > driver/keyboard/ps2/keymap.c
+driver/keyboard/ps2/keymap.c driver/keyboard/ps2/key_constants.h: driver/keyboard/ps2/keymap.c_generator.py driver/keyboard/ps2/keymap-set1 driver/keyboard/ps2/key-constants
+	python driver/keyboard/ps2/keymap.c_generator.py
 
-driver/keyboard/ps2/keymap.o: driver/keyboard/ps2/keymap.c kernel.h driver/keyboard/ps2/keymap.h
+driver/keyboard/ps2/keymap.o: driver/keyboard/ps2/keymap.c driver/keyboard/ps2/ps2.h driver/keyboard/ps2/keymap.h driver/keyboard/ps2/key_constants.h
 	$(GCC) -c driver/keyboard/ps2/keymap.c -o driver/keyboard/ps2/keymap.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
-driver/keyboard/ps2/ps2.o: driver/keyboard/ps2/ps2.c irq.h kernel.h driver/keyboard/ps2/keymap.h
+driver/keyboard/ps2/ps2.o: driver/keyboard/ps2/ps2.c irq.h kernel.h driver/keyboard/ps2/keymap.h driver/keyboard/ps2/key_constants.h
 	$(GCC) -c driver/keyboard/ps2/ps2.c -o driver/keyboard/ps2/ps2.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 gdt.o: gdt.c

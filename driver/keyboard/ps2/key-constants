@@ -1,0 +1,104 @@
+=	equals
+-	minus
+,	comma
+;	semicolon
+/	slash
+.	period
+[	open bracket
+]	close bracket
+\	backslash
+0 (zero)	0	0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+A
+"apps"	apps
+B
+backspace
+` (back tick)	backtick	`
+C
+CapsLock
+cursor down
+cursor left
+cursor right
+cursor up
+D
+delete
+E
+end
+enter
+escape
+F
+F1
+F10
+F11
+F12
+F2
+F3
+F4
+F5
+F6
+F7
+F8
+F9
+G
+H
+home
+I
+insert
+J
+K
+(keypad) -	keypad minus	-
+(keypad) /	keypad slash	/
+(keypad) .	keypad period	.
+(keypad) *	keypad asterisk	*
+(keypad) +	keypad plus	+
+(keypad) 0	keypad 0	0
+(keypad) 1	keypad 1	1
+(keypad) 2	keypad 2	2
+(keypad) 3	keypad 3	3
+(keypad) 4	keypad 4	4
+(keypad) 5	keypad 5	5
+(keypad) 6	keypad 6	6
+(keypad) 7	keypad 7	7
+(keypad) 8	keypad 8	8
+(keypad) 9	keypad 9	9
+(keypad) enter	keypad enter
+L
+left alt
+left control
+left GUI
+left shift
+M
+N
+NumberLock
+O
+P
+page down
+page up
+pause
+print screen
+Q
+R
+right alt (or altGr)
+right control
+right GUI
+right shift
+S
+ScrollLock
+' (single quote)	single quote	'
+space
+T
+tab
+U
+V
+W
+X
+Y
+Z
