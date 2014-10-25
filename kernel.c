@@ -10,6 +10,7 @@ extern "C" {
 #include "lib/str.h"
 #include "lib/printf.h"
 #include "kernel.h"
+#include "events.h"
  
 /* Check if the compiler thinks if we are targeting the wrong operating system. */
 #if defined(__linux__)
@@ -145,6 +146,7 @@ void kernel_main() {
 	__asm__ __volatile__ ("sti"); // Enable IRQs
 	while (1) {
 		__asm__ __volatile__ ("hlt"); // Idle until interrupt arrives
+		while (event_loop()); // Process all events
 	}
 	// TODO do stuff
 	// TODO vga_reset(); // (after boot)
