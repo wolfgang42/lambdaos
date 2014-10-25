@@ -7,3 +7,4 @@ isr.c
 irq.s
 *.pyc
 *.html
+driver/keyboard/ps2/keymap.c

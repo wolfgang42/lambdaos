@@ -6,6 +6,7 @@ extern "C" {
 #include <stdint.h>
 
 #include "driver/vga.h"
+#include "driver/keyboard/ps2/ps2.h"
 #include "lib/str.h"
 #include "lib/printf.h"
 #include "kernel.h"
@@ -135,6 +136,7 @@ void kernel_main() {
 	isrs_install();
 	irq_install();
 	timer_install();
+	keyboard_install();
 	__asm__ __volatile__ ("sti"); // Enable IRQs
 	while (1) {
 		__asm__ __volatile__ ("hlt"); // Idle until interrupt arrives
