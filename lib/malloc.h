@@ -2,3 +2,4 @@
 
 extern void* malloc(size_t n); 
 extern void free(void* p);
+extern size_t unusedMemory();

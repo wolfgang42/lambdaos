@@ -37,6 +37,10 @@ void* sbrk(ptrdiff_t d) {
 	return (void*)old_watermark;
 }
 
+size_t unusedMemory() {
+	return FREEMEM_END - sbrk_watermark;
+}
+
 #define MORECORE sbrk
 #define MORECORE_CONTIGUOUS 1
 #define MORECORE_CANNOT_TRIM
