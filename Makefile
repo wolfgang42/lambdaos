@@ -75,7 +75,7 @@ lib/queue.o: lib/queue.c lib/queue.h lib/malloc.h kernel.h
 driver/vga.o: driver/vga.c driver/vga.h lib/str.h kernel.h
 	$(GCC) -c driver/vga.c -o driver/vga.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
-driver/timer.o: driver/timer.c irq.h kernel.h
+driver/timer.o: driver/timer.c irq.h kernel.h events.h lib/malloc.h
 	$(GCC) -c driver/timer.c -o driver/timer.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 driver/keyboard/ps2/keymap.c driver/keyboard/ps2/key_constants.h: driver/keyboard/ps2/keymap.c_generator.py driver/keyboard/ps2/keymap-set1 driver/keyboard/ps2/key-constants

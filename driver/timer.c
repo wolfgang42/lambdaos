@@ -1,5 +1,7 @@
 #include "../irq.h"
 #include "../kernel.h"
+#include "../events.h"
+#include "../lib/malloc.h"
 /* This will keep track of how many ticks that the system
 *  has been running for */
 volatile unsigned long long timer_ticks = 0;
@@ -27,14 +29,25 @@ void timer_set_phase(int hz) {
 void timer_handler(struct regs *r __attribute__((__unused__))) {
 	/* Increment our 'tick count' */
 	timer_ticks++;
+	event* e = malloc(sizeof(event));
+	e->code = EVENT_TIMER_TICK;
+	unsigned long long* t = malloc(sizeof(unsigned long long));
+	*t = timer_ticks;
+	e->data=t;
+	event_enqueue(e);
+}
+
+bool timer_event(event* e) {
+	unsigned long long tick = *(unsigned long long*)(e->data);
 	for (int i=0; i < TIMER_SCHEDULE_MAXITEMS; i++) {
 		if (timer_schedule_list[i].handler) {
-			if (timer_schedule_list[i].time == timer_ticks) {
+			if (timer_schedule_list[i].time == tick) {
 				timer_schedule_list[i].handler();
 				timer_schedule_list[i].handler=0;
 			}
 		}
 	}
+	return true; // Allow other things that hook the timer to run
 }
 
 /* Sets up the system clock by installing the timer handler
@@ -45,6 +58,7 @@ void timer_install() {
 	timer_set_phase(timer_phase); // 100 Hz
 	/* Installs 'timer_handler' to IRQ0 */
 	irq_install_handler(0, timer_handler);
+	event_attach(EVENT_TIMER_TICK, timer_event);
 }
 
 unsigned long long timer_schedule(void(*handler)(), unsigned long long ticks) {
@@ -59,4 +73,3 @@ unsigned long long timer_schedule(void(*handler)(), unsigned long long ticks) {
 	}
 	kernel_panic("Timer out of scheduler slots.");
 }
-
