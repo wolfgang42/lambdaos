@@ -8,3 +8,4 @@ irq.s
 *.pyc
 *.html
 driver/keyboard/ps2/keymap.c
+driver/keyboard/ps2/key_constants.h
