@@ -149,8 +149,8 @@ void kernel_main() {
 	
 	terminal_init();
 	while (1) {
-		__asm__ __volatile__ ("hlt"); // Idle until interrupt arrives
 		while (event_loop()); // Process all events
+		__asm__ __volatile__ ("hlt"); // Idle until interrupt arrives
 	}
 	// TODO do stuff
 	// TODO vga_reset(); // (after boot)

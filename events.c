@@ -18,6 +18,7 @@ void events_install() {
  * is to simply pass in malloc's free().
  */
 void event_enqueue(unsigned int code, void* data, void (*freefn)(void*)) {
+	assert(code <= EVENT_MAX);
 	event* ev = malloc(sizeof(event));
 	ev->code = code;
 	ev->data = data;
@@ -28,6 +29,7 @@ void event_enqueue(unsigned int code, void* data, void (*freefn)(void*)) {
 event_handler* event_handlers[EVENT_MAX+1] = { [0 ... EVENT_MAX] = NULL};
 
 void event_attach(unsigned int code, bool (*fn)(event*)) {
+	assert(code <= EVENT_MAX);
 	event_handler* handler = malloc(sizeof(event_handler));
 	handler->fn = fn;
 	if (event_handlers[code] == NULL) {
@@ -48,7 +50,7 @@ bool event_loop() {
 			handler = handler->next_handler;
 		}
 		active_event->freefn(active_event->data);
-		free(active_event); // TODO free data parameter!
+		free(active_event);
 	}
 	return !fifo_queue_empty(event_queue);
 }
