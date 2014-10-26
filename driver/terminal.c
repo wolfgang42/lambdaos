@@ -5,8 +5,8 @@
 #include "../events.h"
 #include "keyboard/ascii_map.h"
 #include "../lib/str.h"
-
-#include "../kernel.h"
+#include "../lib/mem.h"
+#include "../lib/malloc.h"
 
 char term_input[81] = "";
 unsigned short term_input_pos=0;
@@ -93,10 +93,51 @@ bool terminal_keyboard_handler(event* ev) {
 	return true;
 }
 
-void terminal_init() {
+#define TERM_BUFMAX 99
+char* term_buffer[TERM_BUFMAX+1];
+unsigned int term_buf_writepos  = TERM_BUFMAX;
+unsigned int term_buf_scrollpos = 0;
+
+void terminal_refresh() {
 	vga_setcolor(vga_make_color(COLOR_LIGHT_GREY, COLOR_BLACK));
 	vga_clear();
+	vga_row = 0;
+	vga_column = 0;
+	for (unsigned int i = term_buf_scrollpos; i < term_buf_scrollpos+23; i++) {
+		vga_writestring(term_buffer[i]);
+		vga_putchar('\n');
+	}
+}
+
+void terminal_writeline(char* line) {
+	// First handle oversize lines.
+	if (strlen(line) > 79) {
+		char* firsthalf = "";
+		memcpy(firsthalf, line, 79);
+		firsthalf[80] = '\0';
+		terminal_writeline(firsthalf);
+		terminal_writeline(line+80); // Second half
+		return;
+	}
+	
+	term_buf_writepos++;
+	if (term_buf_writepos > TERM_BUFMAX) term_buf_writepos = 0;
+	
+	free(term_buffer[term_buf_writepos]);
+	term_buffer[term_buf_writepos] = malloc(strlen(line)+1);
+	memcpy(term_buffer[term_buf_writepos], line, strlen(line)+1);
+	terminal_refresh();
+}
+
+void terminal_init() {
+	for (unsigned int i = 0; i <= TERM_BUFMAX; i++) {
+		term_buffer[i] = malloc(1);
+		*term_buffer[i] = '\0';
+	}
+	
 	vga_set_cursor_display(true, 12, 15);
 	event_attach(EVENT_KBD_ACTION, terminal_keyboard_handler);
+	
 	terminal_draw_input();
+	terminal_refresh();
 }
