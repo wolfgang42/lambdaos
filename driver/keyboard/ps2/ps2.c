@@ -36,5 +36,5 @@ bool keyboard_action_event(event* ev) {
 void keyboard_install() {
 	irq_install_handler(1, keyboard_handler);
 	event_attach(EVENT_KBD_SCANCODE, keyboard_scancode_event);
-	event_attach(EVENT_KBD_ACTION,   keyboard_action_event);
+	//event_attach(EVENT_KBD_ACTION,   keyboard_action_event);
 }

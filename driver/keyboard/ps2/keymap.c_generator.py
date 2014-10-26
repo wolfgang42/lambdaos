@@ -34,7 +34,7 @@ with open('driver/keyboard/ps2/keymap-set1') as f:
 		prepos[byte] = (command, direction)
 
 def chartoconst(char):
-	return 'KBD_CHAR_'+constants[char][0]
+	return 'KBD_KEY_'+constants[char][0]
 
 def driver(level, ktree):
 	code = ""
