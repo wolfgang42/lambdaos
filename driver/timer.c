@@ -29,12 +29,10 @@ void timer_set_phase(int hz) {
 void timer_handler(struct regs *r __attribute__((__unused__))) {
 	/* Increment our 'tick count' */
 	timer_ticks++;
-	event* e = malloc(sizeof(event));
-	e->code = EVENT_TIMER_TICK;
+
 	unsigned long long* t = malloc(sizeof(unsigned long long));
 	*t = timer_ticks;
-	e->data=t;
-	event_enqueue(e);
+	event_enqueue(EVENT_TIMER_TICK, t, free);
 }
 
 bool timer_event(event* e) {

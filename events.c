@@ -11,17 +11,18 @@ void events_install() {
 }
 
 /* Add an event to the event queue
- * The caller is responsible for malloc()ing the event, and its data structures.
+ * The caller is responsible for malloc()ing the data parameter.
+ * Once the event is no longer used, freefn will be called
+ * to free the data structure (if desired) before destroying the event.
+ * The easiest way to do this (if you don't have a special data structure)
+ * is to simply pass in malloc's free().
  */
-void event_enqueue(event* ev) {
+void event_enqueue(unsigned int code, void* data, void (*freefn)(void*)) {
+	event* ev = malloc(sizeof(event));
+	ev->code = code;
+	ev->data = data;
+	ev->freefn = freefn;
 	fifo_queue_push(event_queue, ev);
-}
-
-/* Get the next event in the queue.
- * The caller is responsible for free()ing the event, and its data structures.
- */
-event* event_dequeue() {
-	return fifo_queue_pop(event_queue);
 }
 
 event_handler* event_handlers[EVENT_MAX+1] = { [0 ... EVENT_MAX] = NULL};
@@ -39,14 +40,15 @@ void event_attach(unsigned int code, bool (*fn)(event*)) {
 
 bool event_loop() {
 	event* active_event;
-	if ((active_event = event_dequeue()) != NULL) {
+	if ((active_event = fifo_queue_pop(event_queue)) != NULL) {
 		event_handler* handler = event_handlers[active_event->code];
 		bool run = true;
 		while (handler != NULL && run) {
 			run = handler->fn(active_event);
 			handler = handler->next_handler;
 		}
-		free(active_event);
+		active_event->freefn(active_event->data);
+		free(active_event); // TODO free data parameter!
 	}
 	return !fifo_queue_empty(event_queue);
 }
