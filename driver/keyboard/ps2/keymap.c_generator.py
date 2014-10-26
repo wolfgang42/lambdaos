@@ -67,6 +67,14 @@ with open('driver/keyboard/ps2/keymap.c', 'w') as f:
 #include "ps2.h"
 #include "../../vga.h"
 #include "../../../kernel.h"
+#include "../../../events.h"
+#include "../../../lib/malloc.h"
+void keyboard_event(unsigned int key, bool pressed) {
+	keyboard_action* action = malloc(sizeof(keyboard_action));
+	action->key = key;
+	action->pressed = pressed;
+	event_enqueue(EVENT_KBD_ACTION, action, free);
+}
 void keyboard_kmap(unsigned char byte) {
 \tstatic unsigned int level = 0;
 \tswitch(level) {""", file=f)
@@ -78,8 +86,8 @@ void keyboard_kmap(unsigned char byte) {
 
 i=0
 with open('driver/keyboard/ps2/key_constants.h', 'w') as f:
-	print("#define KBD_ACT_PRESSED 0", file=f)
-	print("#define KBD_ACT_RELEASED 1", file=f)
+	print("#define KBD_ACT_PRESSED 1", file=f)
+	print("#define KBD_ACT_RELEASED 0", file=f)
 	for char in constants:
 		print ("#define "+chartoconst(char)+" "+str(i), file=f)
 		i+=1

@@ -17,6 +17,10 @@ extern void event_attach(unsigned int code, bool (*fn)(event*));
 extern void events_install();
 extern bool event_loop();
 
+#define EVENT_ALL 0
 #define EVENT_TIMER_TICK 1
+#define EVENT_KBD_SCANCODE 2
+#define EVENT_KBD_ACTION 3
+#define EVENT_KBD_KEY 4
 
-#define EVENT_MAX EVENT_TIMER_TICK
+#define EVENT_MAX EVENT_KBD_KEY
