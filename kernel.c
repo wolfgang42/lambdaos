@@ -11,6 +11,7 @@ extern "C" {
 #include "lib/printf.h"
 #include "kernel.h"
 #include "events.h"
+#include "driver/terminal.h"
  
 /* Check if the compiler thinks if we are targeting the wrong operating system. */
 #if defined(__linux__)
@@ -145,6 +146,8 @@ void kernel_main() {
 	timer_install();
 	keyboard_install();
 	__asm__ __volatile__ ("sti"); // Enable IRQs
+	
+	terminal_init();
 	while (1) {
 		__asm__ __volatile__ ("hlt"); // Idle until interrupt arrives
 		while (event_loop()); // Process all events

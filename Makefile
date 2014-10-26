@@ -16,7 +16,7 @@ lambdaos.iso: lambdaos.bin grub.cfg
 	cp grub.cfg isodir/boot/grub/grub.cfg
 	grub-mkrescue -o lambdaos.iso isodir
 
-OBJECTS=boot.s.o kernel.o gdt.o gdt.s.o idt.o idt.s.o isr.o isr.s.o irq.o irq.s.o events.o driver/vga.o driver/timer.o driver/keyboard/ascii_map.o driver/keyboard/ps2/ps2.o driver/keyboard/ps2/keymap.o lib/str.o lib/mem.o lib/malloc.o lib/printf.o lib/queue.o
+OBJECTS=boot.s.o kernel.o gdt.o gdt.s.o idt.o idt.s.o isr.o isr.s.o irq.o irq.s.o events.o driver/vga.o driver/timer.o driver/terminal.o driver/keyboard/ascii_map.o driver/keyboard/ps2/ps2.o driver/keyboard/ps2/keymap.o lib/str.o lib/mem.o lib/malloc.o lib/printf.o lib/queue.o
 lambdaos.bin: $(OBJECTS) linker.ld
 	$(GCC) -T linker.ld -o lambdaos.bin -ffreestanding -O2 -nostdlib \
 		$(OBJECTS) -lgcc
@@ -77,6 +77,9 @@ driver/vga.o: driver/vga.c driver/vga.h lib/str.h kernel.h
 
 driver/timer.o: driver/timer.c irq.h kernel.h events.h lib/malloc.h
 	$(GCC) -c driver/timer.c -o driver/timer.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+
+driver/terminal.o: driver/terminal.c driver/terminal.h driver/vga.h driver/keyboard/ascii_map.h
+	$(GCC) -c driver/terminal.c -o driver/terminal.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 driver/keyboard/ascii_map.c: driver/keyboard/ascii_map.c_generator.py
 	python driver/keyboard/ascii_map.c_generator.py > driver/keyboard/ascii_map.c
