@@ -1,6 +1,19 @@
 GCC=../crosscompile/install/bin/i686-elf-gcc -ggdb3
 GAS=../crosscompile/install/bin/i686-elf-as  -ggdb3
-QEMU_OPTS=#-s -S
+QEMU_OPTS=-soundhw pcspk #-s -S
+
+# For an explanation of how this makefile works, see http://wiki.osdev.org/Makefile
+
+SRCGEN   := ./isr.c ./driver/keyboard/ascii_map.c   ./driver/keyboard/ps2/keymap.c ./driver/keyboard/ps2/key_constants.h
+# $(sort ...) is needed to remove duplicates (files in both $(SRCGEN) and the filesystem)
+SRCFILES := $(sort $(shell find . -type f -name '*.c') $(SRCGEN))
+ASMGEN   := ./isr.s ./irq.s
+ASMFILES := $(sort $(shell find . -type f -name '*.s') $(ASMGEN))
+HDRFILES := $(shell find . -type f -name '*.h')
+OBJFILES := $(patsubst %.c,%.o,$(SRCFILES)) $(patsubst %.s,%.s.o,$(ASMFILES))
+DEPFILES := $(patsubst %.c,%.d,$(SRCFILES))
+
+.PHONY: binboot isoboot htmldocs clean
 
 binboot: lambdaos.bin
 	qemu-system-i386 -kernel lambdaos.bin $(QEMU_OPTS)
@@ -15,23 +28,18 @@ lambdaos.iso: lambdaos.bin grub.cfg
 	mkdir -p isodir/boot/grub
 	cp grub.cfg isodir/boot/grub/grub.cfg
 	grub-mkrescue -o lambdaos.iso isodir
-
-OBJECTS=boot.s.o kernel.o gdt.o gdt.s.o idt.o idt.s.o isr.o isr.s.o irq.o irq.s.o events.o driver/vga.o driver/timer.o driver/terminal.o driver/keyboard/ascii_map.o driver/keyboard/ps2/ps2.o driver/keyboard/ps2/keymap.o lib/str.o lib/mem.o lib/malloc.o lib/printf.o lib/queue.o
-lambdaos.bin: $(OBJECTS) linker.ld
+	
+lambdaos.bin: $(OBJFILES) linker.ld
 	$(GCC) -T linker.ld -o lambdaos.bin -ffreestanding -O2 -nostdlib \
-		$(OBJECTS) -lgcc
+		$(OBJFILES) -lgcc
 
-boot.s.o: boot.s
-	$(GAS) boot.s -o boot.s.o
+-include $(DEPFILES)
 
-gdt.s.o: gdt.s
-	$(GAS) gdt.s -o gdt.s.o
-
-idt.s.o: idt.s
-	$(GAS) idt.s -o idt.s.o
-
-isr.s.o: isr.s
-	$(GAS) isr.s -o isr.s.o
+%.s.o: %.s Makefile
+	@$(GAS) $< -o $@
+	
+%.o: %.c Makefile
+	@$(GCC) -MMD -MP -c $< -o $@ -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 isr.s: isr.s_generator.py isr_exceptions.py
 	python isr.s_generator.py > isr.s
@@ -39,47 +47,8 @@ isr.s: isr.s_generator.py isr_exceptions.py
 isr.c:isr.c_generator.py isr_exceptions.py
 	python isr.c_generator.py > isr.c
 
-isr.o: isr.c isr.h idt.h lib/printf.h kernel.h
-	$(GCC) -c isr.c -o isr.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
 irq.s: irq.s_generator.py
 	python irq.s_generator.py > irq.s
-
-irq.s.o: irq.s
-	$(GAS) irq.s -o irq.s.o
-
-irq.o: irq.c isr.h idt.h
-	$(GCC) -c irq.c -o irq.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
-kernel.o: kernel.c kernel.h driver/vga.h lib/str.h lib/printf.h events.h
-	$(GCC) -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
-events.o: events.c events.h lib/malloc.h kernel.h lib/queue.h
-	$(GCC) -c events.c -o events.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
-lib/str.o: lib/str.c
-	$(GCC) -c lib/str.c -o lib/str.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
-lib/mem.o: lib/mem.c
-	$(GCC) -c lib/mem.c -o lib/mem.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
-lib/malloc.o: lib/malloc.c lib/malloc.h lib/malloc_defs.c kernel.h lib/mem.h
-	$(GCC) -c lib/malloc_defs.c -o lib/malloc.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
-lib/printf.o: lib/printf.c
-	$(GCC) -c lib/printf.c -o lib/printf.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
-lib/queue.o: lib/queue.c lib/queue.h lib/malloc.h kernel.h
-	$(GCC) -c lib/queue.c -o lib/queue.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
-driver/vga.o: driver/vga.c driver/vga.h lib/str.h kernel.h
-	$(GCC) -c driver/vga.c -o driver/vga.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
-driver/timer.o: driver/timer.c irq.h kernel.h events.h lib/malloc.h
-	$(GCC) -c driver/timer.c -o driver/timer.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
-driver/terminal.o: driver/terminal.c driver/terminal.h driver/vga.h driver/keyboard/ascii_map.h
-	$(GCC) -c driver/terminal.c -o driver/terminal.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 driver/keyboard/ascii_map.c: driver/keyboard/ascii_map.c_generator.py
 	python driver/keyboard/ascii_map.c_generator.py > driver/keyboard/ascii_map.c
@@ -87,26 +56,14 @@ driver/keyboard/ascii_map.c: driver/keyboard/ascii_map.c_generator.py
 driver/keyboard/ps2/keymap.c driver/keyboard/ps2/key_constants.h: driver/keyboard/ps2/keymap.c_generator.py driver/keyboard/ps2/keymap-set1 driver/keyboard/ps2/key-constants
 	python driver/keyboard/ps2/keymap.c_generator.py
 
-driver/keyboard/ps2/keymap.o: driver/keyboard/ps2/keymap.c driver/keyboard/ps2/ps2.h driver/keyboard/ps2/keymap.h driver/keyboard/ps2/key_constants.h
-	$(GCC) -c driver/keyboard/ps2/keymap.c -o driver/keyboard/ps2/keymap.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
-driver/keyboard/ps2/ps2.o: driver/keyboard/ps2/ps2.c irq.h kernel.h driver/keyboard/ps2/keymap.h driver/keyboard/ps2/key_constants.h
-	$(GCC) -c driver/keyboard/ps2/ps2.c -o driver/keyboard/ps2/ps2.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
-gdt.o: gdt.c
-	$(GCC) -c gdt.c -o gdt.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
-idt.o: idt.c lib/mem.h
-	$(GCC) -c idt.c -o idt.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-
 htmldocs: Readme.html
 	
 Readme.html: Readme.md
 	markdown Readme.md > Readme.html
 
 clean:
-	rm -f *.o lambdaos.bin lambdaos.iso lib/*.o driver/*.o
-	rm -f isr.s isr.c isr_exceptions.pyc # Auto-generated by isr.*_generator.py
-	rm -f irq.s
+	rm -f $(OBJFILES)
+	rm -f $(DEPFILES)
+	rm -f $(SRCGEN) $(ASMGEN)
 	rm -f Readme.html
 	rm -rf isodir
