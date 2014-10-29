@@ -64,6 +64,9 @@ Readme.html: Readme.md
 clean:
 	rm -f $(OBJFILES)
 	rm -f $(DEPFILES)
-	rm -f $(SRCGEN) $(ASMGEN)
+	rm -f *.pyc
 	rm -f Readme.html
 	rm -rf isodir
+	rm -f lambdaos.bin lambdaos.iso
+	rm -f $(SRCGEN) $(ASMGEN)
+	

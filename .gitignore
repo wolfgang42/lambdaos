@@ -1,13 +1,13 @@
 *.o
 *.d
+*.pyc
+*.html
 isodir
 lambdaos.bin
 lambdaos.iso
 isr.s
 isr.c
 irq.s
-*.pyc
-*.html
 driver/keyboard/ascii_map.c
 driver/keyboard/ps2/keymap.c
 driver/keyboard/ps2/key_constants.h
